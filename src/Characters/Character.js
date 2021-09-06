@@ -8,11 +8,17 @@ const characterTypes = new Set([
   'Zombie',
 ]);
 
+// eslint-disable-next-line no-extend-native
+Number.prototype.roundNumber = function f(fixed = 3) {
+  return +this.toFixed(fixed);
+};
+
 export default class Character {
   constructor(name, type, health, level, attack, defence) {
     this.name = name;
     this.type = type;
     this.health = health;
+    this.maxHealth = health;
     this.level = level;
     this.attack = attack;
     this.defence = defence;
@@ -40,5 +46,25 @@ export default class Character {
 
   get type() {
     return this._type;
+  }
+
+  levelUp() {
+    if (this.health <= 0) {
+      throw new Error('unable to upgrade dead character');
+    }
+    this.level += 1;
+    this.attack = (this.attack * 1.2).roundNumber();
+    this.defence = (this.defence * 1.2).roundNumber();
+    this.health = this.maxHealth;
+  }
+
+  damage(points) {
+    if (points < 0) {
+      throw new Error('damage should be > 0');
+    }
+    this.health -= (points * (1 - this.defence / 100)).roundNumber();
+    if (this.health < 0) {
+      this.health = 0;
+    }
   }
 }
